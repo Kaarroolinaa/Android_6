@@ -1,47 +1,55 @@
 package com.example.android_6
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.android_6.ui.theme.Android_6Theme
+import android.view.View
+import android.widget.Button
+import android.widget.LinearLayout
+import androidx.appcompat.app.AppCompatActivity
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
+
+    private lateinit var gameView: GameView
+    private lateinit var menuLayout: LinearLayout
+    private lateinit var playButton: Button
+    private lateinit var pauseButton: Button
+
+    private var isPaused = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            Android_6Theme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+        setContentView(R.layout.activity_main)
+
+        gameView = findViewById(R.id.game_view)
+        menuLayout = findViewById(R.id.menu_layout)
+        playButton = findViewById(R.id.play_button)
+        pauseButton = findViewById(R.id.pause_button)
+
+        playButton.setOnClickListener {
+            menuLayout.visibility = View.GONE
+            pauseButton.visibility = View.VISIBLE
+            gameView.resumeGame()
+        }
+
+        pauseButton.setOnClickListener {
+            if (!isPaused) {
+                gameView.pauseGame()
+                isPaused = true
+            } else {
+                gameView.resumeGame()
+                isPaused = false
             }
         }
     }
-}
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+    override fun onResume() {
+        super.onResume()
+        if (menuLayout.visibility == View.GONE && !isPaused) {
+            gameView.resumeGame()
+        }
+    }
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    Android_6Theme {
-        Greeting("Android")
+    override fun onPause() {
+        super.onPause()
+        gameView.pauseGame()
     }
 }
